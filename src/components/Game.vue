@@ -1,6 +1,10 @@
 <template>
   <div>
     <h1>{{ currentWord }}</h1>
+    <p ref="points" class="points">
+      {{ points }} <span v-if="points === 1">point</span>
+      <span v-else>points</span>
+    </p>
     <div v-for="{ word, definition } in dictionary" v-bind:key="word">
       <button v-on:click="guess">{{ definition }} ({{word}})</button>
     </div>
@@ -15,7 +19,8 @@ export default {
   data: () => {
     return {
       currentWord: '',
-      dictionary: []
+      dictionary: [],
+      points: 0
     };
   },
   methods: {
@@ -42,7 +47,11 @@ export default {
       const definition = e.target.innerText.split(" ")[0];
       this.dictionary.forEach(d => {
         if(d.word === this.currentWord && d.definition === definition){
-          console.log('correct');
+          this.points++;
+          this.$refs.points.style.background = '#14f396';
+          setTimeout(() => {
+            this.$refs.points.style.background = 'initial';
+          }, 300);
         }
       });
 
@@ -57,5 +66,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+.points{
+  padding: 0.5rem;
+  width: fit-content;
+  margin: 1rem auto;
+  border-radius: 6px;
+  transition: background 300ms;
+}
 </style>
