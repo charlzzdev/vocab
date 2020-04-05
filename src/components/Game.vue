@@ -26,8 +26,16 @@ export default {
   methods: {
     generateRandomWord: function() {
       const { words } = wordList;
-      const randomWord = words[Math.random() * words.length | 0]; 
-      return randomWord;
+      const randomWord = words[Math.random() * words.length | 0];
+      let wordExists = false;
+
+      this.dictionary.forEach(d => {
+        if(d.word === randomWord) wordExists = true;
+      });
+
+      if(wordExists){
+        return this.generateRandomWord();
+      } else return randomWord;
     },
     generateDictionary: function(){
       this.dictionary = [];
