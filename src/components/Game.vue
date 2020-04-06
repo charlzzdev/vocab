@@ -49,25 +49,27 @@ export default {
       this.choices = [];
       for(let i = 0; i < this.numberOfChoices; i++){
         const randomWord = this.generateRandomWord();
-        const res = await fetch(`https://wordsapiv1.p.rapidapi.com/words/${randomWord}/definitions`, {
-          "method": "GET",
-          "headers": {
-            "x-rapidapi-host": "wordsapiv1.p.rapidapi.com",
-            "x-rapidapi-key": api.key
-          }
-        });
-        const data = await res.json();
-        const {definition, partOfSpeech} = data.definitions[Math.random()*data.definitions.length|0];
+        if(!this.dictionary[randomWord]){
+          const res = await fetch(`https://wordsapiv1.p.rapidapi.com/words/${randomWord}/definitions`, {
+            "method": "GET",
+            "headers": {
+              "x-rapidapi-host": "wordsapiv1.p.rapidapi.com",
+              "x-rapidapi-key": api.key
+            }
+          });
+          const data = await res.json();
+  
+          this.dictionary = {
+            ...this.dictionary,
+            [randomWord]: {
+              word: randomWord,
+              definitions: data.definitions
+            }
+          };
+        }
 
-        this.dictionary = {
-          ...this.dictionary,
-          [randomWord]: {
-            word: randomWord,
-            definition,
-            partOfSpeech
-          }
-        };
-
+        const { definitions } = this.dictionary[randomWord];
+        const { definition, partOfSpeech } = definitions[Math.random()*definitions.length|0];
         this.choices = [
           ...this.choices,
           {
@@ -80,8 +82,9 @@ export default {
 
       this.currentWord = this.choices[Math.random()*this.choices.length|0].word;
     },
-    guess: function(definition) {
-      if(this.dictionary[this.currentWord].definition === definition){
+    guess: function(guessedDefinition) {
+      const { definitions } = this.dictionary[this.currentWord];
+      if(definitions.some(({ definition }) => definition === guessedDefinition)){
         this.points++;
         this.$refs.points.style.background = '#14f396';
         setTimeout(() => {
