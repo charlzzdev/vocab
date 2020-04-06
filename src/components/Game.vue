@@ -5,21 +5,23 @@
       {{ points }} <span v-if="points === 1">point</span>
       <span v-else>points</span>
     </p>
-    <div v-for="{ word, definition } in dictionary" v-bind:key="word">
-      <button v-on:click="guess">{{ definition }} ({{word}})</button>
+    <div v-for="{ definition, partOfSpeech } in choices" v-bind:key="definition">
+      <button v-on:click="() => guess(definition)">{{ definition }} ({{ partOfSpeech }})</button>
     </div>
   </div>
 </template>
 
 <script>
 import wordList from '../assets/wordList';
+import api from '../../api';
 
 export default {
   name: 'Game',
   data: () => {
     return {
       currentWord: '',
-      dictionary: [],
+      dictionary: {},
+      choices: [],
       points: 0
     };
   },
@@ -29,39 +31,57 @@ export default {
       const randomWord = words[Math.random() * words.length | 0];
       let wordExists = false;
 
-      this.dictionary.forEach(d => {
-        if(d.word === randomWord) wordExists = true;
+      this.choices.forEach(choice => {
+        if(choice.word === randomWord) wordExists = true;
       });
 
       if(wordExists){
         return this.generateRandomWord();
       } else return randomWord;
     },
-    generateDictionary: function(){
-      this.dictionary = [];
+    generateDictionary: async function(){
+      this.choices = [];
       for(let i = 0; i < 3; i++){
-        this.dictionary = [
-          ...this.dictionary,
-          {
-            word: this.generateRandomWord(),
-            definition: `d${Math.random()*1000|0}`
+        const randomWord = this.generateRandomWord();
+        const res = await fetch(`https://wordsapiv1.p.rapidapi.com/words/${randomWord}/definitions`, {
+          "method": "GET",
+          "headers": {
+            "x-rapidapi-host": "wordsapiv1.p.rapidapi.com",
+            "x-rapidapi-key": api.key
           }
-        ]
+        });
+        const data = await res.json();
+        const {definition, partOfSpeech} = data.definitions[Math.random()*data.definitions.length|0];
+
+        this.dictionary = {
+          ...this.dictionary,
+          [randomWord]: {
+            word: randomWord,
+            definition,
+            partOfSpeech
+          }
+        };
+
+        this.choices = [
+          ...this.choices,
+          {
+            word: randomWord,
+            definition,
+            partOfSpeech
+          }
+        ];
       }
 
-      this.currentWord = this.dictionary[Math.random()*this.dictionary.length|0].word;
+      this.currentWord = this.choices[Math.random()*this.choices.length|0].word;
     },
-    guess: function(e) {
-      const definition = e.target.innerText.split(" ")[0];
-      this.dictionary.forEach(d => {
-        if(d.word === this.currentWord && d.definition === definition){
-          this.points++;
-          this.$refs.points.style.background = '#14f396';
-          setTimeout(() => {
-            this.$refs.points.style.background = 'initial';
-          }, 300);
-        }
-      });
+    guess: function(definition) {
+      if(this.dictionary[this.currentWord].definition === definition){
+        this.points++;
+        this.$refs.points.style.background = '#14f396';
+        setTimeout(() => {
+          this.$refs.points.style.background = 'initial';
+        }, 300);
+      }
 
       this.generateDictionary();
     }
