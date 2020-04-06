@@ -5,8 +5,13 @@
       {{ points }} <span v-if="points === 1">point</span>
       <span v-else>points</span>
     </p>
-    <div v-for="{ definition, partOfSpeech } in choices" v-bind:key="definition">
-      <button v-on:click="() => guess(definition)">{{ definition }} ({{ partOfSpeech }})</button>
+    <div v-if="choices.length === numberOfChoices">
+      <div v-for="{ definition, partOfSpeech } in choices" v-bind:key="definition">
+        <button v-on:click="() => guess(definition)">{{ definition }} ({{ partOfSpeech }})</button>
+      </div>
+    </div>
+    <div v-else>
+      loading next word...
     </div>
   </div>
 </template>
@@ -22,6 +27,7 @@ export default {
       currentWord: '',
       dictionary: {},
       choices: [],
+      numberOfChoices: 3,
       points: 0
     };
   },
@@ -41,7 +47,7 @@ export default {
     },
     generateDictionary: async function(){
       this.choices = [];
-      for(let i = 0; i < 3; i++){
+      for(let i = 0; i < this.numberOfChoices; i++){
         const randomWord = this.generateRandomWord();
         const res = await fetch(`https://wordsapiv1.p.rapidapi.com/words/${randomWord}/definitions`, {
           "method": "GET",
