@@ -5,11 +5,17 @@
       {{ points }} <span v-if="points === 1">point</span>
       <span v-else>points</span>
     </p>
-    <div v-if="choices.length === numberOfChoices">
+    <div v-if="choices.length === numberOfChoices && !info.show">
       <div v-for="{ definition, partOfSpeech } in choices" v-bind:key="definition">
         <button v-on:click="() => guess(definition)">{{ definition }} ({{ partOfSpeech }})</button>
       </div>
     </div>
+    <Info
+      v-else-if="info.show"
+      v-bind:title="info.title"
+      v-bind:text="info.text"
+      v-bind:generateDictionary="generateDictionary"
+    />
     <div v-else>
       loading next word...
     </div>
@@ -17,18 +23,21 @@
 </template>
 
 <script>
+import Info from './Info';
 import wordList from '../assets/wordList';
 import api from '../../api';
 
 export default {
   name: 'Game',
+  components: { Info },
   data: () => {
     return {
       currentWord: '',
       dictionary: {},
       choices: [],
       numberOfChoices: 3,
-      points: 0
+      points: 0,
+      info: { show: false, title: '', text: '' }
     };
   },
   methods: {
@@ -47,6 +56,7 @@ export default {
     },
     generateDictionary: async function(){
       this.choices = [];
+      this.info.show = false;
       for(let i = 0; i < this.numberOfChoices; i++){
         const randomWord = this.generateRandomWord();
         if(!this.dictionary[randomWord]){
@@ -90,9 +100,19 @@ export default {
         setTimeout(() => {
           this.$refs.points.style.background = 'initial';
         }, 300);
-      }
 
-      this.generateDictionary();
+        this.generateDictionary();
+      } else {
+        this.choices.forEach(choice => {
+          if(choice.word === this.currentWord){
+            this.info = {
+              show: true,
+              title: `${choice.word} (${choice.partOfSpeech}) means:`,
+              text: choice.definition
+            };
+          }
+        });
+      }
     }
   },
   created: function () {
