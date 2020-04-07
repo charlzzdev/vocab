@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="game">
     <h1>{{ currentWord }}</h1>
     <p ref="points" class="points">
       {{ points }} <span v-if="points === 1">point</span>
@@ -7,7 +7,9 @@
     </p>
     <div v-if="choices.length === numberOfChoices && !info.show">
       <div v-for="{ definition, partOfSpeech } in choices" v-bind:key="definition">
-        <button v-on:click="() => guess(definition)">{{ definition }} ({{ partOfSpeech }})</button>
+        <button class="full-width-btn" v-on:click="() => guess(definition)">
+          {{ definition }} ({{ partOfSpeech }})
+        </button>
       </div>
     </div>
     <Info
@@ -123,6 +125,17 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+#game{
+  background: #f9f9f9;
+  max-width: 500px;
+  margin: 5rem auto;
+  padding: 2rem 1rem;
+  border-radius: 6px;
+  box-shadow: 0 0 50px #e2e2e2;
+}
+h1{
+  margin-top: 0;
+}
 .points{
   padding: 0.5rem;
   width: fit-content;

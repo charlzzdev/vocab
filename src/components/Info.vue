@@ -17,6 +17,12 @@ export default {
 }
 </script>
 
-<style>
-
+<style scoped>
+h2{
+  margin-bottom: 0.5rem;
+}
+p{
+  margin-top: 0.5rem;
+  line-height: 1.7;
+}
 </style>
