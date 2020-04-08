@@ -75,6 +75,15 @@ export default {
             }
           });
           const data = await res.json();
+
+          if(!res.ok) {
+            this.info = {
+              show: true,
+              title: 'An error occurred:',
+              text: data.message || data.msg
+            };
+            return;
+          }
   
           this.dictionary = {
             ...this.dictionary,
