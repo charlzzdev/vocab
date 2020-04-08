@@ -39,5 +39,16 @@ button:hover{
 .full-width-btn{
   width: 100%;
   margin-top: 1rem;
+  position: relative;
+}
+.key-indicator{
+  background: #279859;
+  padding: 0.25rem 0.5rem;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  border-bottom-right-radius: 6px;
+  border-top-left-radius: 6px;
+  font-size: 0.8rem;
 }
 </style>

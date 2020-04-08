@@ -2,7 +2,10 @@
   <div>
     <h2>{{ title }}</h2>
     <p>{{ text }}</p>
-    <button v-on:click="generateDictionary">Continue</button>
+    <button
+      id="btn- "
+      v-on:click="generateDictionary"
+    >Continue <span class="key-indicator">Space</span></button>
   </div>
 </template>
 
@@ -24,5 +27,10 @@ h2{
 p{
   margin-top: 0.5rem;
   line-height: 1.7;
+}
+.key-indicator{
+  position: initial;
+  border-radius: 6px;
+  margin-left: 0.25rem;
 }
 </style>

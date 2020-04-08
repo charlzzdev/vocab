@@ -6,9 +6,14 @@
       <span v-else>points</span>
     </p>
     <div v-if="choices.length === numberOfChoices && !info.show">
-      <div v-for="{ definition, partOfSpeech } in choices" v-bind:key="definition">
-        <button class="full-width-btn" v-on:click="() => guess(definition)">
+      <div v-for="({ definition, partOfSpeech }, index) in choices" v-bind:key="definition">
+        <button 
+          v-bind:id="'btn-'+(index+1)"
+          class="full-width-btn"
+          v-on:click="() => guess(definition)"
+        >
           {{ definition }} ({{ partOfSpeech }})
+          <span class="key-indicator">{{ index+1 }}</span>
         </button>
       </div>
     </div>
@@ -119,6 +124,11 @@ export default {
   },
   created: function () {
     this.generateDictionary();
+
+    document.addEventListener('keyup', e => {
+      const button = document.getElementById(`btn-${e.key}`);
+      button?.click();
+    });
   }
 }
 </script>
