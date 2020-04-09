@@ -31,8 +31,9 @@
 
 <script>
 import Info from './Info';
-import wordList from '../assets/wordList';
-import api from '../../api';
+import generateRandomWord from '../utils/generateRandomWord';
+import generateDictionary from '../utils/generateDictionary';
+import guess from '../utils/guess';
 
 export default {
   name: 'Game',
@@ -48,88 +49,9 @@ export default {
     };
   },
   methods: {
-    generateRandomWord: function() {
-      const { words } = wordList;
-      const randomWord = words[Math.random() * words.length | 0];
-      let wordExists = false;
-
-      this.choices.forEach(choice => {
-        if(choice.word === randomWord) wordExists = true;
-      });
-
-      if(wordExists){
-        return this.generateRandomWord();
-      } else return randomWord;
-    },
-    generateDictionary: async function(){
-      this.choices = [];
-      this.info.show = false;
-      for(let i = 0; i < this.numberOfChoices; i++){
-        const randomWord = this.generateRandomWord();
-        if(!this.dictionary[randomWord]){
-          const res = await fetch(`https://wordsapiv1.p.rapidapi.com/words/${randomWord}/definitions`, {
-            "method": "GET",
-            "headers": {
-              "x-rapidapi-host": "wordsapiv1.p.rapidapi.com",
-              "x-rapidapi-key": api.key
-            }
-          });
-          const data = await res.json();
-
-          if(!res.ok) {
-            this.info = {
-              show: true,
-              title: 'An error occurred:',
-              text: data.message || data.msg
-            };
-            return;
-          }
-  
-          this.dictionary = {
-            ...this.dictionary,
-            [randomWord]: {
-              word: randomWord,
-              definitions: data.definitions
-            }
-          };
-        }
-
-        const { definitions } = this.dictionary[randomWord];
-        const { definition, partOfSpeech } = definitions[Math.random()*definitions.length|0];
-        this.choices = [
-          ...this.choices,
-          {
-            word: randomWord,
-            definition,
-            partOfSpeech
-          }
-        ];
-      }
-
-      this.currentWord = this.choices[Math.random()*this.choices.length|0].word;
-    },
-    guess: function(guessedDefinition) {
-      const { definitions } = this.dictionary[this.currentWord];
-      if(definitions.some(({ definition }) => definition === guessedDefinition)){
-        this.points++;
-        this.$refs.points.style.background = '#14f396';
-        setTimeout(() => {
-          this.$refs.points.style.background = 'initial';
-        }, 300);
-
-        this.generateDictionary();
-      } else {
-        this.choices.forEach(choice => {
-          if(choice.word === this.currentWord){
-            this.info = {
-              show: true,
-              title: `${choice.word} (${choice.partOfSpeech}) means:`,
-              text: choice.definition
-            };
-          }
-        });
-      }
-    }
+    generateRandomWord,
+    generateDictionary,
+    guess
   },
   created: function () {
     this.generateDictionary();
