@@ -1,17 +1,17 @@
 <template>
   <div id="app">
-    <Game />
+    <nav>
+      <router-link to="/">Game</router-link>
+      <router-link to="/dashboard">Dashboard</router-link>
+      <router-link to="/login">Login</router-link>
+    </nav>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import Game from './components/Game';
-
 export default {
-  name: 'App',
-  components: {
-    Game
-  }
+  name: 'App'
 }
 </script>
 
@@ -22,6 +22,21 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
   text-align: center;
+}
+nav{
+  max-width: calc(500px + 2rem);
+  margin: 2rem auto;
+  text-align: right;
+}
+nav a{
+  margin-left: 1.5rem;
+  padding-bottom: 0.15rem;
+  color: #2c3e50;
+  font-weight: bold;
+  text-decoration: none;
+}
+.router-link-exact-active{
+  border-bottom: 2px solid #44ca7f;
 }
 button{
   background: #44ca7f;
