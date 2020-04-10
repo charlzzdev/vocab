@@ -1,5 +1,5 @@
 <template>
-  <div id="game">
+  <div class="container">
     <h1>{{ currentWord }}</h1>
     <p ref="points" class="points">
       {{ points }} <span v-if="points === 1">point</span>
@@ -65,8 +65,8 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-#game{
+<style>
+.container{
   background: #f9f9f9;
   max-width: 500px;
   margin: 5rem auto;
