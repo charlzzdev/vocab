@@ -3,15 +3,33 @@
     <nav>
       <router-link to="/">Game</router-link>
       <router-link to="/dashboard">Dashboard</router-link>
-      <router-link to="/login">Login</router-link>
+      <router-link to="/login" v-if="user === 'Guest'">Login</router-link>
+      <button class="small-btn" v-else v-on:click="logout">Logout</button>
     </nav>
-    <router-view></router-view>
+    <router-view v-bind:user="user"></router-view>
   </div>
 </template>
 
 <script>
+import firebase from 'firebase/app';
+import 'firebase/auth';
+
 export default {
-  name: 'App'
+  name: 'App',
+  data: function() {
+    return { user: 'Guest' }
+  },
+  methods: {
+    logout: function() {
+      this.user = 'Guest';
+      firebase.auth().signOut();
+    }
+  },
+  created: function() {
+    firebase.auth().onAuthStateChanged(user => {
+      if(user) this.user = user.email;
+    });
+  }
 }
 </script>
 
@@ -55,6 +73,13 @@ button:hover{
   width: 100%;
   margin-top: 1rem;
   position: relative;
+}
+.small-btn{
+  padding: 0;
+  margin: 0 0 0 1.5rem;
+  background: none !important;
+  font-weight: bold;
+  color: #2c3e50;
 }
 .key-indicator{
   background: #279859;

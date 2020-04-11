@@ -1,12 +1,15 @@
 <template>
   <div>
-    /dashboard
+    /dashboard as {{ user }}
   </div>
 </template>
 
 <script>
 export default {
-
+  name: 'Dashboard',
+  props: {
+    user: String
+  }
 }
 </script>
 
