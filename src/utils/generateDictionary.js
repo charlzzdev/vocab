@@ -23,6 +23,8 @@ export default async function() {
       userStats.points.byWord[word] = userStats.points.byWord[word] + points || points;
     });
 
+    this.currentWord = 'Saving stats...';
+
     await firebase.firestore()
       .collection('vocab')
       .doc(this.user)
@@ -31,6 +33,7 @@ export default async function() {
     this.gameStarted = false;
     this.round = 0;
     this.points = { overall: 0, byWord: {} };
+    this.currentWord = '';
     return;
   }
   
