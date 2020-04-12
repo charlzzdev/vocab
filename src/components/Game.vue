@@ -2,29 +2,35 @@
   <div class="container">
     <h1>{{ currentWord }}</h1>
     <p ref="points" class="points">
-      {{ points }} <span v-if="points === 1">point</span>
-      <span v-else>points</span>
+      {{ points.overall }}/10 points
     </p>
-    <div v-if="choices.length === numberOfChoices && !info.show">
-      <div v-for="({ definition, partOfSpeech }, index) in choices" v-bind:key="definition">
-        <button 
-          v-bind:id="'btn-'+(index+1)"
-          class="full-width-btn"
-          v-on:click="() => guess(definition)"
-        >
-          {{ definition }} ({{ partOfSpeech }})
-          <span class="key-indicator">{{ index+1 }}</span>
-        </button>
-      </div>
+    <div v-if="!gameStarted">
+      <button v-on:click="startGame" id="btn- ">
+        Start game as {{ user }}
+      </button>
     </div>
-    <Info
-      v-else-if="info.show"
-      v-bind:title="info.title"
-      v-bind:text="info.text"
-      v-bind:generateDictionary="generateDictionary"
-    />
     <div v-else>
-      loading next word...
+      <div v-if="choices.length === numberOfChoices && !info.show">
+        <div v-for="({ definition, partOfSpeech }, index) in choices" v-bind:key="definition">
+          <button 
+            v-bind:id="'btn-'+(index+1)"
+            class="full-width-btn"
+            v-on:click="() => guess(definition)"
+          >
+            {{ definition }} ({{ partOfSpeech }})
+            <span class="key-indicator">{{ index+1 }}</span>
+          </button>
+        </div>
+      </div>
+      <Info
+        v-else-if="info.show"
+        v-bind:title="info.title"
+        v-bind:text="info.text"
+        v-bind:generateDictionary="generateDictionary"
+      />
+      <div v-else>
+        loading next word...
+      </div>
     </div>
   </div>
 </template>
@@ -38,24 +44,32 @@ import guess from '../utils/guess';
 export default {
   name: 'Game',
   components: { Info },
+  props: { user: String },
   data: () => {
     return {
       currentWord: '',
       dictionary: {},
       choices: [],
       numberOfChoices: 3,
-      points: 0,
+      points: {
+        overall: 0,
+        byWord: {}
+      },
+      gameStarted: false,
+      round: 0,
       info: { show: false, title: '', text: '' }
     };
   },
   methods: {
+    startGame: function() {
+      this.gameStarted = true;
+      this.generateDictionary();
+    },
     generateRandomWord,
     generateDictionary,
     guess
   },
   created: function () {
-    this.generateDictionary();
-
     document.addEventListener('keyup', e => {
       const button = document.getElementById(`btn-${e.key}`);
       button?.click();

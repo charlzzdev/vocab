@@ -1,8 +1,42 @@
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+
 import api from "../../api";
 
 export default async function() {
+  if(this.round >= 10) {
+    const doc = await firebase.firestore()
+      .collection('vocab')
+      .doc(this.user)
+      .get();
+    const userStats = doc.data() || {
+      gamesPlayed: 0,
+      points: {
+        overall: 0,
+        byWord: {}
+      }
+    };
+
+    userStats.gamesPlayed++;
+    Object.entries(this.points.byWord).forEach(([word, points]) => {
+      userStats.points.overall += points;
+      userStats.points.byWord[word] = userStats.points.byWord[word] + points || points;
+    });
+
+    await firebase.firestore()
+      .collection('vocab')
+      .doc(this.user)
+      .set(userStats);
+
+    this.gameStarted = false;
+    this.round = 0;
+    this.points = { overall: 0, byWord: {} };
+    return;
+  }
+  
   this.choices = [];
   this.info.show = false;
+  this.round++;
 
   for(let i = 0; i < this.numberOfChoices; i++){
     const randomWord = this.generateRandomWord();
