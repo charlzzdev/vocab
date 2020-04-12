@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <div class="round" v-if="round">Round {{ round }}/10</div>
     <h1>{{ currentWord }}</h1>
     <p ref="points" class="points">
       {{ points.overall }}/10 points
@@ -97,5 +98,8 @@ h1{
   margin: 1rem auto;
   border-radius: 6px;
   transition: background 300ms;
+}
+.round{
+  text-align: right;
 }
 </style>
