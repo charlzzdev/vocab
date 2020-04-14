@@ -5,6 +5,7 @@ import api from "../../api";
 
 export default async function() {
   if(this.round >= 10) {
+    clearInterval(this.secondsSpentCounter);
     const doc = await firebase.firestore()
       .collection('vocab')
       .doc(this.user)
@@ -14,9 +15,11 @@ export default async function() {
       points: {
         overall: 0,
         byWord: {}
-      }
+      },
+      secondsSpent: 0
     };
 
+    userStats.secondsSpent += this.secondsSpent;
     userStats.gamesPlayed++;
     Object.entries(this.points.byWord).forEach(([word, points]) => {
       userStats.points.overall += points;
@@ -34,6 +37,7 @@ export default async function() {
     this.round = 0;
     this.points = { overall: 0, byWord: {} };
     this.currentWord = '';
+    this.secondsSpent = 0;
     return;
   }
   

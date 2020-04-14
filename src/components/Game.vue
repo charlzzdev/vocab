@@ -58,11 +58,14 @@ export default {
       },
       gameStarted: false,
       round: 0,
+      secondsSpent: 0,
+      secondsSpentCounter: null,
       info: { show: false, title: '', text: '' }
     };
   },
   methods: {
     startGame: function() {
+      this.secondsSpentCounter = setInterval(() => this.secondsSpent++, 1000);
       this.gameStarted = true;
       this.generateDictionary();
     },
