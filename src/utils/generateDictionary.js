@@ -5,6 +5,8 @@ import api from "../../api";
 
 export default async function() {
   if(this.round >= 10) {
+    this.gameStarted = false;
+    this.savingToFirebase = true;
     clearInterval(this.secondsSpentCounter);
     const doc = await firebase.firestore()
       .collection('vocab')
@@ -33,11 +35,11 @@ export default async function() {
       .doc(this.user)
       .set(userStats);
 
-    this.gameStarted = false;
     this.round = 0;
     this.points = { overall: 0, byWord: {} };
     this.currentWord = '';
     this.secondsSpent = 0;
+    this.savingToFirebase = false;
     return;
   }
   

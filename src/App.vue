@@ -69,6 +69,10 @@ button{
 button:hover{
   background: #22e277;
 }
+button:disabled{
+  background: #e0e0e0;
+  color: #444;
+}
 .full-width-btn{
   width: 100%;
   margin-top: 1rem;

@@ -6,7 +6,7 @@
       {{ points.overall }}/10 points
     </p>
     <div v-if="!gameStarted">
-      <button v-on:click="startGame" id="btn- ">
+      <button v-on:click="startGame" v-bind:disabled="savingToFirebase" id="btn- ">
         Start game as {{ user }}
       </button>
     </div>
@@ -60,6 +60,7 @@ export default {
       round: 0,
       secondsSpent: 0,
       secondsSpentCounter: null,
+      savingToFirebase: false,
       info: { show: false, title: '', text: '' }
     };
   },
