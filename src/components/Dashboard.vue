@@ -4,26 +4,27 @@
     <section class="stats">
       <article class="item">
         <h2 class="stat-title">Accuracy</h2>
-        <p class="stat-value">92.73%</p>
+        <p class="stat-value">{{ stats.accuracy }}%</p>
       </article>
       <article class="item">
         <h2 class="stat-title">Total points</h2>
-        <p class="stat-value">3263</p>
+        <p class="stat-value">{{ stats.points.overall }}</p>
       </article>
       <article class="item">
         <h2 class="stat-title">Time spent</h2>
-        <p class="stat-value">03:07:44</p>
+        <p class="stat-value">{{ stats.timeSpent }}</p>
       </article>
       <article class="item">
         <h2 class="stat-title">Games played</h2>
-        <p class="stat-value">344</p>
+        <p class="stat-value">{{ stats.gamesPlayed }}</p>
       </article>
       <article class="item">
         <h2 class="stat-title">Recent errors</h2>
         <p class="stat-value">
-          <span class="word">lorem</span>
-          <span class="word">ipsum</span>
-          <span class="word">dolor</span>
+          <span class="word" v-for="(word, i) in stats.recentlyMistakenWords" v-bind:key="i">
+            {{ word }}
+          </span>
+          <span v-if="!stats.recentlyMistakenWords">You've made no mistakes recently.</span>
         </p>
       </article>
     </section>
@@ -31,10 +32,42 @@
 </template>
 
 <script>
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+
+import secondsToHMS from '../utils/secondsToHMS';
+
 export default {
   name: 'Dashboard',
   props: {
     user: String
+  },
+  data: function() {
+    return {
+      stats: {
+        gamesPlayed: 0,
+        points: { overall: 0 },
+        accuracy: 0,
+        timeSpent: '00:00:00',
+        recentlyMistakenWords: null
+      }
+    }
+  },
+  created: async function() {
+    const doc = await firebase.firestore()
+      .collection('vocab')
+      .doc(this.user)
+      .get();
+    if(!doc.data()) return;
+    const { gamesPlayed, points, secondsSpent, recentlyMistakenWords } = doc.data();
+
+    this.stats = {
+      gamesPlayed,
+      points,
+      accuracy: (points.overall / (gamesPlayed * 10) * 100).toFixed(2),
+      timeSpent: secondsToHMS(secondsSpent || 0),
+      recentlyMistakenWords
+    };
   }
 }
 </script>
