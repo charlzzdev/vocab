@@ -12,16 +12,16 @@
     </div>
     <div v-else>
       <div v-if="choices.length === numberOfChoices && !info.show">
-        <div v-for="({ definition, partOfSpeech }, index) in choices" v-bind:key="definition">
-          <button 
-            v-bind:id="'btn-'+(index+1)"
-            class="full-width-btn"
-            v-on:click="() => guess(definition)"
-          >
-            {{ definition }} ({{ partOfSpeech }})
-            <span class="key-indicator">{{ index+1 }}</span>
-          </button>
-        </div>
+        <button 
+          class="full-width-btn"
+          v-for="({ definition, partOfSpeech }, index) in choices"
+          v-bind:key="definition"
+          v-bind:id="'btn-'+(index+1)"
+          v-on:click="() => guess(definition)"
+        >
+          {{ definition }} ({{ partOfSpeech }})
+          <span class="key-indicator">{{ index+1 }}</span>
+        </button>
       </div>
       <Info
         v-else-if="info.show"
