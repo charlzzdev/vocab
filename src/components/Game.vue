@@ -70,15 +70,16 @@ export default {
       this.gameStarted = true;
       this.generateDictionary();
     },
+    keyUpListener: e => document.getElementById(`btn-${e.key}`)?.click(),
     generateRandomWord,
     generateDictionary,
     guess
   },
   created: function () {
-    document.addEventListener('keyup', e => {
-      const button = document.getElementById(`btn-${e.key}`);
-      button?.click();
-    });
+    document.addEventListener('keyup', this.keyUpListener);
+  },
+  beforeDestroy: function() {
+    document.removeEventListener('keyup', this.keyUpListener);
   }
 }
 </script>
