@@ -2,31 +2,11 @@
   <div class="container dashboard">
     <header>{{ user }}'s Dashboard</header>
     <section class="stats">
-      <article class="item">
-        <h2 class="stat-title">Accuracy</h2>
-        <p class="stat-value">{{ stats.accuracy }}%</p>
-      </article>
-      <article class="item">
-        <h2 class="stat-title">Total points</h2>
-        <p class="stat-value">{{ stats.points.overall }}</p>
-      </article>
-      <article class="item">
-        <h2 class="stat-title">Time spent</h2>
-        <p class="stat-value">{{ stats.timeSpent }}</p>
-      </article>
-      <article class="item">
-        <h2 class="stat-title">Games played</h2>
-        <p class="stat-value">{{ stats.gamesPlayed }}</p>
-      </article>
-      <article class="item">
-        <h2 class="stat-title">Recent errors</h2>
-        <p class="stat-value">
-          <span class="word" v-for="(word, i) in stats.recentlyMistakenWords" v-bind:key="i">
-            {{ word }}
-          </span>
-          <span v-if="!stats.recentlyMistakenWords">You've made no mistakes recently.</span>
-        </p>
-      </article>
+      <DashboardItem title="Accuracy" v-bind:value="stats.accuracy+'%'" />
+      <DashboardItem title="Total points" v-bind:value="stats.points.overall" />
+      <DashboardItem title="Time spent" v-bind:value="stats.timeSpent" />
+      <DashboardItem title="Games played" v-bind:value="stats.gamesPlayed" />
+      <DashboardItem title="Recent errors" v-bind:value="stats.recentlyMistakenWords" />
     </section>
   </div>
 </template>
@@ -35,10 +15,12 @@
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 
+import DashboardItem from './DashboardItem';
 import secondsToHMS from '../utils/secondsToHMS';
 
 export default {
   name: 'Dashboard',
+  components: { DashboardItem },
   props: {
     user: String
   },
@@ -49,7 +31,7 @@ export default {
         points: { overall: 0 },
         accuracy: 0,
         timeSpent: '00:00:00',
-        recentlyMistakenWords: null
+        recentlyMistakenWords: []
       }
     }
   },
@@ -66,7 +48,7 @@ export default {
       points,
       accuracy: (points.overall / (gamesPlayed * 10) * 100).toFixed(2),
       timeSpent: secondsToHMS(secondsSpent || 0),
-      recentlyMistakenWords
+      recentlyMistakenWords: recentlyMistakenWords || []
     };
   }
 }
