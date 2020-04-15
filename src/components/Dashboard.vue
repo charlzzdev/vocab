@@ -13,6 +13,7 @@
 
 <script>
 import firebase from 'firebase/app';
+import 'firebase/auth';
 import 'firebase/firestore';
 
 import DashboardItem from './DashboardItem';
@@ -35,21 +36,23 @@ export default {
       }
     }
   },
-  created: async function() {
-    const doc = await firebase.firestore()
-      .collection('vocab')
-      .doc(this.user)
-      .get();
-    if(!doc.data()) return;
-    const { gamesPlayed, points, secondsSpent, recentlyMistakenWords } = doc.data();
+  created: function() {
+    firebase.auth().onAuthStateChanged(async user => {
+      const doc = await firebase.firestore()
+        .collection('vocab')
+        .doc(user ? user.email : 'Guest')
+        .get();
+      if(!doc.data()) return;
+      const { gamesPlayed, points, secondsSpent, recentlyMistakenWords } = doc.data();
 
-    this.stats = {
-      gamesPlayed,
-      points,
-      accuracy: (points.overall / (gamesPlayed * 10) * 100).toFixed(2),
-      timeSpent: secondsToHMS(secondsSpent || 0),
-      recentlyMistakenWords: recentlyMistakenWords || []
-    };
+      this.stats = {
+        gamesPlayed,
+        points,
+        accuracy: (points.overall / (gamesPlayed * 10) * 100).toFixed(2),
+        timeSpent: secondsToHMS(secondsSpent || 0),
+        recentlyMistakenWords: recentlyMistakenWords || []
+      };
+    });
   }
 }
 </script>
