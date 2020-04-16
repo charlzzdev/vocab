@@ -3,31 +3,58 @@
     <nav>
       <router-link to="/">Game</router-link>
       <router-link to="/dashboard">Dashboard</router-link>
-      <router-link to="/login" v-if="user === 'Guest'">Login</router-link>
+      <router-link to="/login" v-if="user.data.email === 'Guest'">Login</router-link>
       <button class="small-btn" v-else v-on:click="logout">Logout</button>
     </nav>
-    <router-view v-bind:user="user"></router-view>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import firebase from 'firebase/app';
 import 'firebase/auth';
+import 'firebase/firestore';
+
+import secondsToHMS from './utils/secondsToHMS';
 
 export default {
   name: 'App',
-  data: function() {
-    return { user: 'Guest' }
-  },
+  computed: mapState({
+    user: state => state.user
+  }),
   methods: {
-    logout: function() {
-      this.user = 'Guest';
-      firebase.auth().signOut();
-    }
+    logout: () => firebase.auth().signOut()
   },
   created: function() {
     firebase.auth().onAuthStateChanged(user => {
-      if(user) this.user = user.email;
+      const email = user?.email || 'Guest';
+
+      firebase.firestore()
+        .collection('vocab')
+        .doc(email)
+        .onSnapshot(doc => {
+          const data = doc.data() || {
+            email: 'Guest',
+            gamesPlayed: 0,
+            points: {
+              byWord: {},
+              overall: 0
+            },
+            secondsSpent: 0,
+            accuracy: 0.00,
+            timeSpent: '00:00:00',
+            recentlyMistakenWords: []
+          };
+
+          this.$store.commit('setState', {
+            email,
+            ...data,
+            accuracy: (data.points.overall / (data.gamesPlayed * 10) * 100).toFixed(2),
+            timeSpent: secondsToHMS(data.secondsSpent || 0),
+            recentlyMistakenWords: data.recentlyMistakenWords || []
+          });
+        });
     });
   }
 }

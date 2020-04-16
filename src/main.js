@@ -3,6 +3,8 @@ import App from './App.vue'
 import VueRouter from 'vue-router'
 import firebase from 'firebase/app'
 
+import store from './store';
+
 import Game from './components/Game'
 import Login from './components/Login'
 import Dashboard from './components/Dashboard'
@@ -33,6 +35,7 @@ firebase.initializeApp({
 })
 
 new Vue({
+  store,
   router,
   render: h => h(App),
 }).$mount('#app')

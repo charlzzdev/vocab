@@ -1,59 +1,27 @@
 <template>
   <div class="container dashboard">
-    <header>{{ user }}'s Dashboard</header>
+    <header>{{ user.data.email }}'s Dashboard</header>
     <section class="stats">
-      <DashboardItem title="Accuracy" v-bind:value="stats.accuracy+'%'" />
-      <DashboardItem title="Total points" v-bind:value="stats.points.overall" />
-      <DashboardItem title="Time spent" v-bind:value="stats.timeSpent" />
-      <DashboardItem title="Games played" v-bind:value="stats.gamesPlayed" />
-      <DashboardItem title="Recent errors" v-bind:value="stats.recentlyMistakenWords" />
+      <DashboardItem title="Accuracy" v-bind:value="user.data.accuracy+'%'" />
+      <DashboardItem title="Total points" v-bind:value="user.data.points.overall" />
+      <DashboardItem title="Time spent" v-bind:value="user.data.timeSpent" />
+      <DashboardItem title="Games played" v-bind:value="user.data.gamesPlayed" />
+      <DashboardItem title="Recent errors" v-bind:value="user.data.recentlyMistakenWords" />
     </section>
   </div>
 </template>
 
 <script>
-import firebase from 'firebase/app';
-import 'firebase/auth';
-import 'firebase/firestore';
+import { mapState } from 'vuex';
 
 import DashboardItem from './DashboardItem';
-import secondsToHMS from '../utils/secondsToHMS';
 
 export default {
   name: 'Dashboard',
   components: { DashboardItem },
-  props: {
-    user: String
-  },
-  data: function() {
-    return {
-      stats: {
-        gamesPlayed: 0,
-        points: { overall: 0 },
-        accuracy: 0,
-        timeSpent: '00:00:00',
-        recentlyMistakenWords: []
-      }
-    }
-  },
-  created: function() {
-    firebase.auth().onAuthStateChanged(async user => {
-      const doc = await firebase.firestore()
-        .collection('vocab')
-        .doc(user ? user.email : 'Guest')
-        .get();
-      if(!doc.data()) return;
-      const { gamesPlayed, points, secondsSpent, recentlyMistakenWords } = doc.data();
-
-      this.stats = {
-        gamesPlayed,
-        points,
-        accuracy: (points.overall / (gamesPlayed * 10) * 100).toFixed(2),
-        timeSpent: secondsToHMS(secondsSpent || 0),
-        recentlyMistakenWords: recentlyMistakenWords || []
-      };
-    });
-  }
+  computed: mapState({
+    user: state => state.user
+  })
 }
 </script>
 

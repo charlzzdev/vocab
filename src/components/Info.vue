@@ -4,7 +4,7 @@
     <p>{{ text }}</p>
     <button
       id="btn- "
-      v-on:click="generateDictionary"
+      v-on:click="startNextRound"
     >Continue <span class="key-indicator">Space</span></button>
   </div>
 </template>
@@ -15,7 +15,7 @@ export default {
   props: {
     title: String,
     text: String,
-    generateDictionary: Function
+    startNextRound: Function
   }
 }
 </script>

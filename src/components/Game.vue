@@ -1,20 +1,20 @@
 <template>
   <div class="container">
-    <div class="round" v-if="round">Round {{ round }}/10</div>
-    <h1>{{ currentWord }}</h1>
-    <p ref="points" class="points">
-      {{ points.overall }}/10 points
+    <div class="round" v-if="game.round">Round {{ game.round }}/10</div>
+    <h1>{{ game.currentWord }}</h1>
+    <p id="pointsRef" class="points">
+      {{ game.points.overall }}/10 points
     </p>
-    <div v-if="!gameStarted">
-      <button v-on:click="startGame" v-bind:disabled="savingToFirebase" id="btn- ">
-        Start game as {{ user }}
+    <div v-if="!game.gameStarted">
+      <button v-on:click="startGame" v-bind:disabled="game.savingToFirebase" id="btn- ">
+        Start game as {{ user.data.email }}
       </button>
     </div>
     <div v-else>
-      <div v-if="choices.length === numberOfChoices && !info.show">
+      <div v-if="game.choices.length === game.numberOfChoices && !game.info.show">
         <button 
           class="full-width-btn"
-          v-for="({ definition, partOfSpeech }, index) in choices"
+          v-for="({ definition, partOfSpeech }, index) in game.choices"
           v-bind:key="definition"
           v-bind:id="'btn-'+(index+1)"
           v-on:click="() => guess(definition)"
@@ -24,10 +24,10 @@
         </button>
       </div>
       <Info
-        v-else-if="info.show"
-        v-bind:title="info.title"
-        v-bind:text="info.text"
-        v-bind:generateDictionary="generateDictionary"
+        v-else-if="game.info.show"
+        v-bind:title="game.info.title"
+        v-bind:text="game.info.text"
+        v-bind:startNextRound="startNextRound"
       />
       <div v-else>
         loading next word...
@@ -37,43 +37,30 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex';
+
 import Info from './Info';
 import generateRandomWord from '../utils/generateRandomWord';
-import generateDictionary from '../utils/generateDictionary';
-import guess from '../utils/guess';
 
 export default {
   name: 'Game',
   components: { Info },
-  props: { user: String },
-  data: () => {
-    return {
-      currentWord: '',
-      dictionary: {},
-      choices: [],
-      numberOfChoices: 3,
-      points: {
-        overall: 0,
-        byWord: {}
-      },
-      gameStarted: false,
-      round: 0,
-      secondsSpent: 0,
-      secondsSpentCounter: null,
-      savingToFirebase: false,
-      info: { show: false, title: '', text: '' }
-    };
-  },
+  computed: mapState({
+    user: state => state.user,
+    game: state => state.game
+  }),
   methods: {
+    ...mapActions([
+      'setGameReady',
+      'startNextRound',
+      'guess'
+    ]),
     startGame: function() {
-      this.secondsSpentCounter = setInterval(() => this.secondsSpent++, 1000);
-      this.gameStarted = true;
-      this.generateDictionary();
+      this.setGameReady();
+      this.startNextRound();
     },
     keyUpListener: e => document.getElementById(`btn-${e.key}`)?.click(),
-    generateRandomWord,
-    generateDictionary,
-    guess
+    generateRandomWord
   },
   created: function () {
     document.addEventListener('keyup', this.keyUpListener);

@@ -1,15 +1,17 @@
 import wordList from '../assets/wordList';
 
-export default function() {
+function generateRandomWord(choices) {
   const { words } = wordList;
   const randomWord = words[Math.random() * words.length | 0];
   let wordExists = false;
 
-  this.choices.forEach(choice => {
+  choices.forEach(choice => {
     if(choice.word === randomWord) wordExists = true;
   });
 
   if(wordExists){
-    return this.generateRandomWord();
+    return generateRandomWord();
   } else return randomWord;
 }
+
+export default generateRandomWord;
