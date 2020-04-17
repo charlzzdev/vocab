@@ -23,19 +23,16 @@ const state = {
 };
 
 const actions = {
-  setGameReady: ({ state }) => {
-    state.secondsSpentCounter = setInterval(() => state.secondsSpent++, 1000);
-    state.gameStarted = true;
+  setGameReady: ({ commit }) => {
+    commit('startCounter');
   },
-  startNextRound: async ({ state, commit }) => {
-    if(state.round >= 3) {
-      commit('endGameAndSaveData');
+  startNextRound: async ({ state, commit, dispatch }) => {
+    if(state.round >= 10) {
+      dispatch('endGameAndSaveData');
       return;
     }
 
-    state.choices = [];
-    state.info.show = false;
-    state.round++;
+    commit('prepareNextRound');
 
     for(let i = 0; i < state.numberOfChoices; i++){
       const randomWord = generateRandomWord(state.choices);
@@ -51,44 +48,38 @@ const actions = {
         const data = await res.json();
 
         if(!res.ok) {
-          state.info = {
+          commit('setInfo', {
             show: true,
             title: 'An error occurred:',
             text: data.message || data.msg
-          };
+          });
           return;
         }
 
-        state.dictionary = {
-          ...state.dictionary,
-          [randomWord]: {
-            randomWord,
-            definitions: data.definitions
-          }
-        };
+        commit('addWordToDictionary', {
+          word: randomWord,
+          definitions: data.definitions
+        });
       }
 
       const { definitions } = state.dictionary[randomWord];
       const { definition, partOfSpeech } = definitions[Math.random()*definitions.length|0];
 
-      state.choices = [
-        ...state.choices,
-        {
-          word: randomWord,
-          definition,
-          partOfSpeech
-        }
-      ];
+      commit('addWordToChoices', {
+        word: randomWord,
+        definition,
+        partOfSpeech
+      });
     }
 
-    state.currentWord = state.choices[Math.random()*state.choices.length|0].word;
+    commit('setCurrentWord', state.choices[Math.random()*state.choices.length|0].word);
   },
-  guess: ({ state, dispatch }, guessedDefinition) => {
+  guess: ({ state, commit, dispatch }, guessedDefinition) => {
     const { definitions } = state.dictionary[state.currentWord];
 
     if(definitions.some(({ definition }) => definition === guessedDefinition)){
-      state.points.overall++;
-      state.points.byWord[state.currentWord] = state.points.byWord[state.currentWord]+1 || 1;
+      commit('incrementPoints');
+
       document.getElementById('pointsRef').style.background = '#14f396';
       setTimeout(() => {
         document.getElementById('pointsRef').style.background = 'initial';
@@ -98,27 +89,20 @@ const actions = {
     } else {
       state.choices.forEach(choice => {
         if(choice.word === state.currentWord){
-          state.info = {
+          commit('setInfo', {
             show: true,
             title: `${choice.word} (${choice.partOfSpeech}) means:`,
             text: choice.definition
-          };
+          });
         }
       });
     }
   },
-};
-
-const mutations = {
-  endGameAndSaveData: async (state) => {
+  endGameAndSaveData: async ({ state, commit }) => {
     const { user } = store.state;
     const userStats = { ...user.data };
 
-    state.gameStarted = false;
-    state.savingToFirebase = true;
-    state.currentWord = 'Saving stats...';
-
-    clearInterval(state.secondsSpentCounter);
+    commit('prepareToEndGame');
 
     userStats.secondsSpent += state.secondsSpent;
     userStats.gamesPlayed++;
@@ -132,6 +116,52 @@ const mutations = {
       .doc(user.data.email)
       .set(userStats);
 
+    commit('resetGameState');
+  }
+};
+
+const mutations = {
+  startCounter: (state) => {
+    state.secondsSpentCounter = setInterval(() => state.secondsSpent++, 1000);
+    state.gameStarted = true;
+  },
+  prepareNextRound: (state) => {
+    state.choices = [];
+    state.info.show = false;
+    state.round++;
+  },
+  addWordToDictionary: (state, { word, definitions }) => {
+    state.dictionary = {
+      ...state.dictionary,
+      [word]: {
+        word,
+        definitions
+      }
+    };
+  },
+  addWordToChoices: (state, choice) => {
+    state.choices = [
+      ...state.choices,
+      choice
+    ];
+  },
+  setCurrentWord: (state, word) => {
+    state.currentWord = word;
+  },
+  incrementPoints: (state) => {
+    state.points.overall++;
+    state.points.byWord[state.currentWord] = state.points.byWord[state.currentWord]+1 || 1;
+  },
+  setInfo: (state, info) => {
+    state.info = info;
+  },
+  prepareToEndGame: (state) => {
+    state.gameStarted = false;
+    state.savingToFirebase = true;
+    state.currentWord = 'Saving stats...';
+    clearInterval(state.secondsSpentCounter);
+  },
+  resetGameState: (state) => {
     state.round = 0;
     state.points = { overall: 0, byWord: {} };
     state.currentWord = '';
