@@ -114,7 +114,11 @@ const actions = {
     await firebase.firestore()
       .collection('vocab')
       .doc(user.data.email)
-      .set(userStats);
+      .set({
+        gamesPlayed: userStats.gamesPlayed,
+        secondsSpent: userStats.secondsSpent,
+        points: userStats.points
+      });
 
     commit('resetGameState');
   }
