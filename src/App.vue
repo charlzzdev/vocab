@@ -35,7 +35,7 @@ export default {
         .doc(email)
         .onSnapshot(doc => {
           const data = doc.data() || {
-            email: 'Guest',
+            email,
             gamesPlayed: 0,
             points: {
               byWord: {},
@@ -46,11 +46,12 @@ export default {
             timeSpent: '00:00:00',
             recentlyMistakenWords: []
           };
+          const accuracy = data.points.overall / (data.gamesPlayed * 10) * 100;
 
           this.$store.commit('setState', {
             email,
             ...data,
-            accuracy: (data.points.overall / (data.gamesPlayed * 10) * 100).toFixed(2),
+            accuracy: (accuracy || 0).toFixed(2),
             timeSpent: secondsToHMS(data.secondsSpent || 0),
             recentlyMistakenWords: data.recentlyMistakenWords || []
           });
