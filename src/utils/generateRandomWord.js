@@ -10,7 +10,7 @@ function generateRandomWord(choices) {
   });
 
   if(wordExists){
-    return generateRandomWord();
+    return generateRandomWord(choices);
   } else return randomWord;
 }
 
