@@ -87,6 +87,11 @@ const actions = {
 
       dispatch('startNextRound');
     } else {
+      const recentlyMistakenWords = [ ...store.state.user.data.recentlyMistakenWords ];
+      recentlyMistakenWords.unshift(state.currentWord);
+      if(recentlyMistakenWords.length > 10) recentlyMistakenWords.pop();
+      commit('user/setState', { recentlyMistakenWords });
+
       state.choices.forEach(choice => {
         if(choice.word === state.currentWord){
           commit('setInfo', {
@@ -117,7 +122,8 @@ const actions = {
       .set({
         gamesPlayed: userStats.gamesPlayed,
         secondsSpent: userStats.secondsSpent,
-        points: userStats.points
+        points: userStats.points,
+        recentlyMistakenWords: userStats.recentlyMistakenWords
       });
 
     commit('resetGameState');
