@@ -48,7 +48,7 @@ export default {
           };
           const accuracy = data.points.overall / (data.gamesPlayed * 10) * 100;
 
-          this.$store.commit('setState', {
+          this.$store.commit('user/setState', {
             email,
             ...data,
             accuracy: (accuracy || 0).toFixed(2),
