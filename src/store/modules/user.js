@@ -16,6 +16,10 @@ const state = {
 const mutations = {
   setState: (state, newState) => {
     state.data = { ...state.data, ...newState };
+  },
+  deleteFromMistakenWords: (state, word) => {
+    const indexOfWord = state.data.recentlyMistakenWords.indexOf(word);
+    state.data.recentlyMistakenWords.splice(indexOfWord, 1);
   }
 };
 

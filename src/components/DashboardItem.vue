@@ -6,7 +6,9 @@
       <span class="word" v-for="(word, i) in value" v-bind:key="i">
         {{ word }}
       </span>
-      <span v-if="!value.length">You've made no mistakes recently.</span>
+      <span v-if="!value.length">
+        You've made no mistakes yet or have already corrected them.
+      </span>
     </p>
   </article>
 </template>

@@ -76,6 +76,7 @@ const actions = {
   },
   guess: ({ state, commit, dispatch }, guessedDefinition) => {
     const { definitions } = state.dictionary[state.currentWord];
+    const recentlyMistakenWords = [ ...store.state.user.data.recentlyMistakenWords ];
 
     if(definitions.some(({ definition }) => definition === guessedDefinition)){
       commit('incrementPoints');
@@ -85,12 +86,17 @@ const actions = {
         document.getElementById('pointsRef').style.background = 'initial';
       }, 300);
 
+      if(recentlyMistakenWords.includes(state.currentWord)){
+        commit('user/deleteFromMistakenWords', state.currentWord);
+      }
+
       dispatch('startNextRound');
     } else {
-      const recentlyMistakenWords = [ ...store.state.user.data.recentlyMistakenWords ];
-      recentlyMistakenWords.unshift(state.currentWord);
-      if(recentlyMistakenWords.length > 10) recentlyMistakenWords.pop();
-      commit('user/setState', { recentlyMistakenWords });
+      if(!recentlyMistakenWords.includes(state.currentWord)){
+        recentlyMistakenWords.unshift(state.currentWord);
+        if(recentlyMistakenWords.length > 10) recentlyMistakenWords.pop();
+        commit('user/setState', { recentlyMistakenWords });
+      }
 
       state.choices.forEach(choice => {
         if(choice.word === state.currentWord){

@@ -3,9 +3,16 @@ import store from '../store';
 
 function generateRandomWord(choices) {
   const { words } = wordList;
-  const randomWord = words[Math.random() * words.length | 0];
-  const userPointsByWord = store.state.user.data.points.byWord;
-  let wordExists = Object.entries(userPointsByWord).some(
+  const { points, recentlyMistakenWords } = store.state.user.data;
+
+  const randomMistakenWord = recentlyMistakenWords[Math.random() * recentlyMistakenWords.length | 0];
+  const randomUnknownWord = words[Math.random() * words.length | 0];
+  const randomWord = !randomMistakenWord
+    || points.byWord[randomMistakenWord] >= 3
+    || choices.some(choice => choice.word === randomMistakenWord)
+    ? randomUnknownWord : (Math.random() > 0.5 ? randomMistakenWord : randomUnknownWord);
+
+  let wordExists = Object.entries(points.byWord).some(
     ([word, points]) => word === randomWord && points >= 3
   );
 
