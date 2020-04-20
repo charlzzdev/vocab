@@ -4,8 +4,8 @@
     <p>{{ text }}</p>
     <button
       id="btn- "
-      v-on:click="startNextRound"
-    >Continue <span class="key-indicator">Space</span></button>
+      v-on:click="actionFunction"
+    >{{ actionTitle }} <span class="key-indicator">Space</span></button>
   </div>
 </template>
 
@@ -15,7 +15,8 @@ export default {
   props: {
     title: String,
     text: String,
-    startNextRound: Function
+    actionTitle: String,
+    actionFunction: Function
   }
 }
 </script>

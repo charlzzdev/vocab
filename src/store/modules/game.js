@@ -19,7 +19,7 @@ const state = {
   },
   secondsSpent: 0,
   secondsSpentCounter: null,
-  info: { show: false, title: '', text: '' }
+  info: { show: false, title: '', text: '', actionTitle: '', actionFunction: null }
 };
 
 const actions = {
@@ -51,7 +51,9 @@ const actions = {
           commit('setInfo', {
             show: true,
             title: 'An error occurred:',
-            text: data.message || data.msg
+            text: data.message || data.msg,
+            actionTitle: 'Retry',
+            actionFunction: () => dispatch('startNextRound')
           });
           return;
         }
@@ -103,7 +105,9 @@ const actions = {
           commit('setInfo', {
             show: true,
             title: `${choice.word} (${choice.partOfSpeech}) means:`,
-            text: choice.definition
+            text: choice.definition,
+            actionTitle: 'Continue',
+            actionFunction: () => dispatch('startNextRound')
           });
         }
       });

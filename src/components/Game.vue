@@ -27,7 +27,8 @@
         v-else-if="game.info.show"
         v-bind:title="game.info.title"
         v-bind:text="game.info.text"
-        v-bind:startNextRound="startNextRound"
+        v-bind:actionTitle="game.info.actionTitle"
+        v-bind:actionFunction="game.info.actionFunction"
       />
       <div v-else>
         loading next word...
