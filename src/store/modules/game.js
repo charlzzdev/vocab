@@ -35,7 +35,31 @@ const actions = {
     commit('prepareNextRound');
 
     for(let i = 0; i < state.numberOfChoices; i++){
-      const randomWord = generateRandomWord(state.choices);
+      let randomWord;
+      try{
+        randomWord = generateRandomWord(state.choices);
+      } catch(err) {
+        commit('setInfo', {
+          show: true,
+          title: 'No more words left',
+          text: 'All the words in this app\'s word list have been guessed at least 3 times on this account.',
+          actionTitle: 'Reset words',
+          actionFunction: async () => {
+            await firebase.firestore()
+              .collection('vocab')
+              .doc(store.state.user.data.email)
+              .update({
+                points: {
+                  byWord: {},
+                  overall: store.state.user.data.points.overall
+                }
+              });
+            commit('resetGameState');
+            dispatch('startNextRound');
+          }
+        });
+        return;
+      }
 
       if(!state.dictionary[randomWord]){
         const res = await fetch(`https://wordsapiv1.p.rapidapi.com/words/${randomWord}/definitions`, {
