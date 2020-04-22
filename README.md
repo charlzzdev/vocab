@@ -1,4 +1,9 @@
 # vocab
+This is a Vue app for practicing vocabulary. Users can try the game out without being logged in, but only logged in users will have their scores saved.
+
+## Tech used
+- Vue with Vuex
+- Firebase
 
 ## Project setup
 ```
