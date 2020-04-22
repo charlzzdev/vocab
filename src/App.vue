@@ -20,32 +20,44 @@ import secondsToHMS from './utils/secondsToHMS';
 
 export default {
   name: 'App',
+  data: function() {
+    return { unsubscribe: null };
+  },
   computed: mapState({
     user: state => state.user
   }),
   methods: {
-    logout: () => firebase.auth().signOut()
+    logout: function() {
+      this.$data.unsubscribe();
+      firebase.auth().signOut();
+    }
   },
   created: function() {
     firebase.auth().onAuthStateChanged(user => {
       const email = user?.email || 'Guest';
+      const defaultData = {
+        email,
+        gamesPlayed: 0,
+        points: {
+          byWord: {},
+          overall: 0
+        },
+        secondsSpent: 0,
+        accuracy: 0.00,
+        timeSpent: '00:00:00',
+        recentlyMistakenWords: []
+      };
 
-      firebase.firestore()
+      if(!user) {
+        this.$store.commit('user/setState', defaultData);
+        return;
+      }
+
+      this.$data.unsubscribe = firebase.firestore()
         .collection('vocab')
         .doc(email)
         .onSnapshot(doc => {
-          const data = doc.data() || {
-            email,
-            gamesPlayed: 0,
-            points: {
-              byWord: {},
-              overall: 0
-            },
-            secondsSpent: 0,
-            accuracy: 0.00,
-            timeSpent: '00:00:00',
-            recentlyMistakenWords: []
-          };
+          const data = doc.data() || defaultData;
           const accuracy = data.points.overall / (data.gamesPlayed * 10) * 100;
 
           this.$store.commit('user/setState', {

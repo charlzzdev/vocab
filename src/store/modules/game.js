@@ -4,6 +4,7 @@ import store from '../index';
 
 import api from '../../../api.json';
 import generateRandomWord from '../../utils/generateRandomWord';
+import secondsToHMS from '../../utils/secondsToHMS';
 
 const state = {
   gameStarted: false,
@@ -45,15 +46,20 @@ const actions = {
           text: 'All the words in this app\'s word list have been guessed at least 3 times on this account.',
           actionTitle: 'Reset words',
           actionFunction: async () => {
-            await firebase.firestore()
-              .collection('vocab')
-              .doc(store.state.user.data.email)
-              .update({
-                points: {
-                  byWord: {},
-                  overall: store.state.user.data.points.overall
-                }
-              });
+            const updatedPoints = {
+              points: {
+                byWord: {},
+                overall: store.state.user.data.points.overall
+              }
+            };
+
+            if(store.state.user.data.email !== 'Guest'){
+              await firebase.firestore()
+                .collection('vocab')
+                .doc(store.state.user.data.email)
+                .update(updatedPoints);
+            } else store.commit('user/setState', updatedPoints);
+
             commit('resetGameState');
             dispatch('startNextRound');
           }
@@ -150,15 +156,23 @@ const actions = {
       userStats.points.byWord[word] = userStats.points.byWord[word] + points || points;
     });
 
-    await firebase.firestore()
-      .collection('vocab')
-      .doc(user.data.email)
-      .set({
-        gamesPlayed: userStats.gamesPlayed,
-        secondsSpent: userStats.secondsSpent,
-        points: userStats.points,
-        recentlyMistakenWords: userStats.recentlyMistakenWords
+    if(user.data.email !== 'Guest') {
+      await firebase.firestore()
+        .collection('vocab')
+        .doc(user.data.email)
+        .set({
+          gamesPlayed: userStats.gamesPlayed,
+          secondsSpent: userStats.secondsSpent,
+          points: userStats.points,
+          recentlyMistakenWords: userStats.recentlyMistakenWords
+        });
+    } else {
+      store.commit('user/setState', {
+        ...userStats,
+        accuracy: (userStats.points.overall / (userStats.gamesPlayed * 10) * 100).toFixed(2),
+        timeSpent: secondsToHMS(userStats.secondsSpent)
       });
+    }
 
     commit('resetGameState');
   }
