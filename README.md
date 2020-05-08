@@ -1,4 +1,4 @@
-![Vocabulary app image](https://charleseller.dev/src/assets/vocab.png)
+[![Vocabulary app image](https://charleseller.dev/src/assets/vocab.png)](https://vocab.charleseller.dev)
 # Vocabulary App
 This is a Vue app for practicing vocabulary. Users can try the game out without being logged in, but only logged in users will have their scores saved.
 
