@@ -11,7 +11,7 @@ const state = {
   savingToFirebase: false,
   round: 0,
   currentWord: '',
-  dictionary: {},
+  dictionary: JSON.parse(window.localStorage.getItem('words')) || {},
   choices: [],
   numberOfChoices: 3,
   points: {
@@ -87,6 +87,14 @@ const actions = {
           });
           return;
         }
+
+        window.localStorage.setItem('words', JSON.stringify({
+          ...JSON.parse(window.localStorage.getItem('words') || '{}'),
+          [randomWord]: {
+            word: randomWord,
+            definitions: data.definitions
+          }
+        }));
 
         commit('addWordToDictionary', {
           word: randomWord,
